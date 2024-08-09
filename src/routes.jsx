@@ -47,6 +47,11 @@ const routes = [
     element: lazy(() => import('./views/auth/signup/SignUp1'))
   },
   {
+    exact: 'true',
+    path: '/',
+    element: lazy(() => import('./views/home'))
+  },
+  {
     path: '*',
     layout: AdminLayout,
     routes: [
