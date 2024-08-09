@@ -1,10 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Row, Col } from 'react-bootstrap';
-import { NavLink, Link } from 'react-router-dom';
-
+import { NavLink, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Breadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
 
 const SignUp1 = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await axios.post('https://miniature-space-giggle-rxr4q9479v3rgr-3000.app.github.dev/api/users', { name, email, password });
+      setMessage(response.data);
+      // Redirect to login or another page after successful registration
+      navigate('/auth/signin-1');
+    } catch (error) {
+      setError(error.response.data || 'An error occurred');
+    }
+  };
+
   return (
     <React.Fragment>
       <Breadcrumb />
@@ -24,22 +44,43 @@ const SignUp1 = () => {
                     <i className="feather icon-user-plus auth-icon" />
                   </div>
                   <h3 className="mb-4">Sign up</h3>
-                  <div className="input-group mb-3">
-                    <input type="text" className="form-control" placeholder="Username" />
-                  </div>
-                  <div className="input-group mb-3">
-                    <input type="email" className="form-control" placeholder="Email address" />
-                  </div>
-                  <div className="input-group mb-4">
-                    <input type="password" className="form-control" placeholder="Password" />
-                  </div>
-                  <div className="form-check  text-start mb-4 mt-2">
-                    <input type="checkbox" className="form-check-input" id="customCheck1" defaultChecked={false} />
-                    <label className="form-check-label" htmlFor="customCheck1">
-                      Send me the <Link to="#"> Newsletter</Link> weekly.
-                    </label>
-                  </div>
-                  <button className="btn btn-primary mb-4">Sign up</button>
+                  {message && <div className="alert alert-success">{message}</div>}
+                  {error && <div className="alert alert-danger">{error}</div>}
+                  <form onSubmit={handleSubmit}>
+                    <div className="input-group mb-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="input-group mb-3">
+                      <input
+                        type="email"
+                        className="form-control"
+                        placeholder="Email address"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="input-group mb-4">
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <button className="btn btn-primary mb-4" type="submit">
+                      Sign up
+                    </button>
+                  </form>
                   <p className="mb-2">
                     Already have an account?{' '}
                     <NavLink to={'/auth/signin-1'} className="f-w-400">
