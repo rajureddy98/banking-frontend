@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Table } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode'; // Update this line
 import avatar1 from '../../assets/images/user/avatar-1.jpg'; // Update paths as needed
 import avatar2 from '../../assets/images/user/avatar-2.jpg'; // Update paths as needed
 
@@ -8,27 +9,43 @@ import avatar2 from '../../assets/images/user/avatar-2.jpg'; // Update paths as 
 const ACCOUNT_API_ENDPOINT = 'https://api.example.com/account-details';
 const TRANSACTIONS_API_ENDPOINT = 'https://api.example.com/recent-transactions';
 
-// Function to get user token or userId from localStorage or context
-const getUserIdentifier = () => {
-  // Example: Retrieve user token or ID from localStorage
-  return localStorage.getItem('userToken'); // Adjust as necessary
+// Function to get user token from sessionStorage
+const getUserToken = () => {
+  return sessionStorage.getItem('userToken'); // Adjust as necessary
+};
+
+// Function to decode JWT and get user information
+const getUserInfo = (token) => {
+  try {
+    return jwtDecode(token);
+  } catch (error) {
+    console.error('Failed to decode token:', error);
+    return null;
+  }
 };
 
 const DashDefault = () => {
   const [accountData, setAccountData] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState(''); // State for username
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const userToken = getUserIdentifier();
+      const userToken = getUserToken();
 
       if (!userToken) {
         // Redirect to login page if the user is not authenticated
-        navigate('/login');
+        navigate('/');
         return;
+      }
+
+      // Decode token and get user information
+      const userInfo = getUserInfo(userToken);
+      if (userInfo) {
+        setUsername(userInfo.username); // Adjust based on your token payload
       }
 
       try {

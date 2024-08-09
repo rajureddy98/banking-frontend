@@ -4,7 +4,6 @@ import { NavLink, Link } from 'react-router-dom';
 
 import Breadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
 
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import AuthLogin from './JWTLogin';
 
@@ -38,21 +37,6 @@ const Signin1 = () => {
                   Signup
                 </NavLink>
               </p>
-              <Alert variant="primary" className="text-start mt-3">
-                User:
-                <CopyToClipboard text="info@codedthemes.com">
-                  <Button variant="outline-primary" as={Link} to="#" className="badge mx-2 mb-2" size="sm">
-                    <i className="fa fa-user" /> info@codedthemes.com
-                  </Button>
-                </CopyToClipboard>
-                <br />
-                Password:
-                <CopyToClipboard text="123456">
-                  <Button variant="outline-primary" as={Link} to="#" className="badge mx-2" size="sm">
-                    <i className="fa fa-lock" /> 123456
-                  </Button>
-                </CopyToClipboard>
-              </Alert>
             </Card.Body>
           </Card>
         </div>

@@ -1,38 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, ListGroup, Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import {jwtDecode} from 'jwt-decode'; // Correct import for jwt-decode
 import PerfectScrollbar from 'react-perfect-scrollbar';
 
 import ChatList from './ChatList';
 
 import avatar1 from '../../../../assets/images/user/avatar-1.jpg';
-import avatar2 from '../../../../assets/images/user/avatar-2.jpg';
-import avatar3 from '../../../../assets/images/user/avatar-3.jpg';
-import avatar4 from '../../../../assets/images/user/avatar-4.jpg';
 
 const NavRight = () => {
   const [listOpen, setListOpen] = useState(false);
+  const [username, setUsername] = useState(''); // State for the username
+  const navigate = useNavigate(); // For navigation after logout
 
-  const notiData = [
-    {
-      name: 'Joseph William',
-      image: avatar2,
-      details: 'Purchase New Theme and make payment',
-      activity: '30 min'
-    },
-    {
-      name: 'Sara Soudein',
-      image: avatar3,
-      details: 'currently login',
-      activity: '30 min'
-    },
-    {
-      name: 'Suzen',
-      image: avatar4,
-      details: 'Purchase New Theme and make payment',
-      activity: 'yesterday'
+  useEffect(() => {
+    // Function to get user token from session storage
+    const getUserToken = () => {
+      return sessionStorage.getItem('userToken'); // Adjust as necessary
+    };
+
+    // Function to decode JWT and get user information
+    const getUserInfo = (token) => {
+      try {
+        return jwtDecode(token);
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+        return null;
+      }
+    };
+
+    // Retrieve and decode token to get username
+    const token = getUserToken();
+    if (token) {
+      const userInfo = getUserInfo(token);
+
+      if (userInfo) {
+        setUsername(userInfo.name || ''); // Set username from token
+      }
     }
-  ];
+  }, []);
+
+  const handleLogout = (event) => {
+    event.preventDefault(); // Prevent default behavior
+    // Clear JWT token from session storage
+    sessionStorage.removeItem('userToken');
+    // Redirect to login page
+    navigate('/');
+  };
 
   return (
     <React.Fragment>
@@ -65,7 +79,7 @@ const NavRight = () => {
                       <img className="img-radius" src={avatar1} alt="Generic placeholder" />
                       <Card.Body className="p-0">
                         <p>
-                          <strong>John Doe</strong>
+                          <strong>{username || 'User'}</strong> {/* Display decoded username */}
                           <span className="n-time text-muted">
                             <i className="icon feather icon-clock me-2" />
                             30 min
@@ -78,41 +92,12 @@ const NavRight = () => {
                   <ListGroup.Item as="li" bsPrefix=" " className="n-title">
                     <p className="m-b-0">EARLIER</p>
                   </ListGroup.Item>
-                  {notiData.map((data, index) => {
-                    return (
-                      <ListGroup.Item key={index} as="li" bsPrefix=" " className="notification">
-                        <Card
-                          className="d-flex align-items-center shadow-none mb-0 p-0"
-                          style={{ flexDirection: 'row', backgroundColor: 'unset' }}
-                        >
-                          <img className="img-radius" src={data.image} alt="Generic placeholder" />
-                          <Card.Body className="p-0">
-                            <p>
-                              <strong>{data.name}</strong>
-                              <span className="n-time text-muted">
-                                <i className="icon feather icon-clock me-2" />
-                                {data.activity}
-                              </span>
-                            </p>
-                            <p>{data.details}</p>
-                          </Card.Body>
-                        </Card>
-                      </ListGroup.Item>
-                    );
-                  })}
                 </ListGroup>
               </PerfectScrollbar>
               <div className="noti-footer">
                 <Link to="#">show all</Link>
               </div>
             </Dropdown.Menu>
-          </Dropdown>
-        </ListGroup.Item>
-        <ListGroup.Item as="li" bsPrefix=" ">
-          <Dropdown>
-            <Dropdown.Toggle as={Link} variant="link" to="#" className="displayChatbox" onClick={() => setListOpen(true)}>
-              <i className="icon feather icon-mail" />
-            </Dropdown.Toggle>
           </Dropdown>
         </ListGroup.Item>
         <ListGroup.Item as="li" bsPrefix=" ">
@@ -123,10 +108,10 @@ const NavRight = () => {
             <Dropdown.Menu align="end" className="profile-notification">
               <div className="pro-head">
                 <img src={avatar1} className="img-radius" alt="User Profile" />
-                <span>John Doe</span>
-                <Link to="#" className="dud-logout" title="Logout">
+                <span>{username || 'User'}</span> {/* Display decoded username */}
+                <a href="/" className="dud-logout" title="Logout" onClick={handleLogout}>
                   <i className="feather icon-log-out" />
-                </Link>
+                </a>
               </div>
               <ListGroup as="ul" bsPrefix=" " variant="flush" className="pro-body">
                 <ListGroup.Item as="li" bsPrefix=" ">
@@ -137,16 +122,6 @@ const NavRight = () => {
                 <ListGroup.Item as="li" bsPrefix=" ">
                   <Link to="#" className="dropdown-item">
                     <i className="feather icon-user" /> Profile
-                  </Link>
-                </ListGroup.Item>
-                <ListGroup.Item as="li" bsPrefix=" ">
-                  <Link to="#" className="dropdown-item">
-                    <i className="feather icon-mail" /> My Messages
-                  </Link>
-                </ListGroup.Item>
-                <ListGroup.Item as="li" bsPrefix=" ">
-                  <Link to="#" className="dropdown-item">
-                    <i className="feather icon-lock" /> Lock Screen
                   </Link>
                 </ListGroup.Item>
               </ListGroup>
