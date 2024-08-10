@@ -4,8 +4,8 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 
-const LOGIN_API_ENDPOINT = 'https://miniature-space-giggle-rxr4q9479v3rgr-3000.app.github.dev/api/auth'; // Replace with your actual login API endpoint
-
+const LOGIN_API_ENDPOINT = import.meta.env.VITE_LOGIN_API_ENDPOINT + '/api/user-service/auth'; // Replace with your actual login API endpoint
+console.log('Login API Endpoint:', LOGIN_API_ENDPOINT);
 const JWTLogin = () => {
   const navigate = useNavigate(); // For navigation after successful login
 

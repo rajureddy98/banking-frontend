@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Table } from 'react-bootstrap';
+import { Row, Col, Card, Table, Button, Form } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Update this line
+import {jwtDecode} from 'jwt-decode'; // Update import
 import avatar1 from '../../assets/images/user/avatar-1.jpg'; // Update paths as needed
 import avatar2 from '../../assets/images/user/avatar-2.jpg'; // Update paths as needed
 
@@ -9,35 +9,20 @@ import avatar2 from '../../assets/images/user/avatar-2.jpg'; // Update paths as 
 const ACCOUNT_API_ENDPOINT = 'https://api.example.com/account-details';
 const TRANSACTIONS_API_ENDPOINT = 'https://api.example.com/recent-transactions';
 
-// Function to get user token from sessionStorage
-const getUserToken = () => {
-  return sessionStorage.getItem('userToken'); // Adjust as necessary
-};
-
-// Function to decode JWT and get user information
-const getUserInfo = (token) => {
-  try {
-    return jwtDecode(token);
-  } catch (error) {
-    console.error('Failed to decode token:', error);
-    return null;
-  }
-};
-
 const DashDefault = () => {
   const [accountData, setAccountData] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState(''); // State for username
+  const [showForm, setShowForm] = useState(false); // State to show/hide form
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const userToken = getUserToken();
+      const userToken = sessionStorage.getItem('userToken'); // Adjust as necessary
 
       if (!userToken) {
-        // Redirect to login page if the user is not authenticated
         navigate('/');
         return;
       }
@@ -45,16 +30,14 @@ const DashDefault = () => {
       // Decode token and get user information
       const userInfo = getUserInfo(userToken);
       if (userInfo) {
-        setUsername(userInfo.username); // Adjust based on your token payload
+        setUsername(userInfo.username);
       }
 
       try {
-        // Fetch account details
         const accountResponse = await fetch(`${ACCOUNT_API_ENDPOINT}?token=${userToken}`);
         const accountData = await accountResponse.json();
         setAccountData(accountData);
 
-        // Fetch recent transactions
         const transactionsResponse = await fetch(`${TRANSACTIONS_API_ENDPOINT}?token=${userToken}`);
         const transactionsData = await transactionsResponse.json();
         setTransactions(transactionsData);
@@ -68,13 +51,25 @@ const DashDefault = () => {
     fetchData();
   }, [navigate]);
 
-  // Check if accountData contains at least one item with a title
+  const getUserInfo = (token) => {
+    try {
+      return jwtDecode(token);
+    } catch (error) {
+      console.error('Failed to decode token:', error);
+      return null;
+    }
+  };
+
+  const handleButtonClick = () => {
+    setShowForm(!showForm);
+  };
+
   const hasAccountData = accountData.length > 0 && accountData[0].title;
 
   return (
     <React.Fragment>
       {loading ? (
-        <div>Loading...</div> // Add a loading indicator if needed
+        <div>Loading...</div>
       ) : (
         <Row>
           {hasAccountData ? (
@@ -149,14 +144,22 @@ const DashDefault = () => {
             <Col xl={6} xxl={6}>
               <Card>
                 <Card.Body>
-                  <h6 className="mb-4">No Account Data Available</h6>
-                  <div className="row d-flex align-items-center">
-                    <div className="col-9">
-                      <h3 className="f-w-300 d-flex align-items-center m-b-0">
-                        <i className="feather icon-credit-card f-30 m-r-5" /> N/A
-                      </h3>
-                    </div>
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h6 className="mb-0">No Account Data Available</h6>
+                    <Button variant="primary" onClick={handleButtonClick}>
+                      {showForm ? 'Cancel' : 'Open account'}
+                    </Button>
                   </div>
+                  <div className="d-flex align-items-center">
+                    <h3 className="f-w-300 d-flex align-items-center mb-0">
+                      <i className="feather icon-credit-card f-30 mr-3" /> N/A
+                    </h3>
+                  </div>
+                  {showForm && (
+                    <div className="mt-4">
+                      <CustomerForm />
+                    </div>
+                  )}
                 </Card.Body>
               </Card>
             </Col>
@@ -164,6 +167,36 @@ const DashDefault = () => {
         </Row>
       )}
     </React.Fragment>
+  );
+};
+
+const CustomerForm = () => {
+  return (
+    <Form>
+      <Form.Group controlId="formName">
+        <Form.Label>Name</Form.Label>
+        <Form.Control type="text" placeholder="Enter your name" />
+      </Form.Group>
+
+      <Form.Group controlId="formDob">
+        <Form.Label>Date of birth</Form.Label>
+        <Form.Control type="date" />
+      </Form.Group>
+
+      <Form.Group controlId="formPhone">
+        <Form.Label>Phone</Form.Label>
+        <Form.Control type="text" placeholder="Enter your phone number" />
+      </Form.Group>
+
+      <Form.Group controlId="formAddress">
+        <Form.Label>Address</Form.Label>
+        <Form.Control as="textarea" rows={3} placeholder="Enter your address" />
+      </Form.Group>
+
+      <Button variant="primary" type="submit">
+        Submit
+      </Button>
+    </Form>
   );
 };
 

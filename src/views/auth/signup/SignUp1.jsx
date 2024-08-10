@@ -16,7 +16,7 @@ const SignUp1 = () => {
     event.preventDefault();
 
     try {
-      const response = await axios.post('https://miniature-space-giggle-rxr4q9479v3rgr-3000.app.github.dev/api/users', { name, email, password });
+      const response = await axios.post('https://miniature-space-giggle-rxr4q9479v3rgr-3000.app.github.dev/api/user-service/users', { name, email, password });
       setMessage(response.data);
       // Redirect to login or another page after successful registration
       navigate('/auth/signin-1');
