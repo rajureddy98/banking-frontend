@@ -11,12 +11,12 @@ const SignUp1 = () => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-
+  const signUp_URL= import.meta.env.VITE_LOGIN_API_ENDPOINT;
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await axios.post('https://miniature-space-giggle-rxr4q9479v3rgr-3000.app.github.dev/api/user-service/users', { name, email, password });
+      const response = await axios.post(signUp_URL +'/api/user-service/users', { name, email, password });
       setMessage(response.data);
       // Redirect to login or another page after successful registration
       navigate('/auth/signin-1');
