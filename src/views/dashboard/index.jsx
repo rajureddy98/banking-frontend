@@ -6,50 +6,73 @@ import avatar1 from '../../assets/images/user/avatar-1.jpg'; // Update paths as 
 import avatar2 from '../../assets/images/user/avatar-2.jpg'; // Update paths as needed
 
 // Placeholder for API endpoints
-const ACCOUNT_API_ENDPOINT = 'https://api.example.com/account-details';
+const ACCOUNT_API_ENDPOINT = 'http://localhost:3000/api/savings-accounts';
 const TRANSACTIONS_API_ENDPOINT = 'https://api.example.com/recent-transactions';
 
 const DashDefault = () => {
   const [accountData, setAccountData] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState(''); // State for username
+  const [username, setUsername] = useState('');
+  const [customerid, setCustomerid] = useState(''); // State for username
   const [showForm, setShowForm] = useState(false); // State to show/hide form
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const userToken = sessionStorage.getItem('userToken'); // Adjust as necessary
-
+      const userToken = sessionStorage.getItem('userToken');
+  
       if (!userToken) {
         navigate('/');
         return;
       }
-
-      // Decode token and get user information
+  
       const userInfo = getUserInfo(userToken);
       if (userInfo) {
         setUsername(userInfo.username);
+        setCustomerid(userInfo.customerid);
       }
-
+  
       try {
-        const accountResponse = await fetch(`${ACCOUNT_API_ENDPOINT}?token=${userToken}`);
+        // Fetch account data
+        const accountResponse = await fetch(`${ACCOUNT_API_ENDPOINT}/${userInfo.customerid}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${userToken}`
+          }
+        });
+  
+        if (!accountResponse.ok) {
+          throw new Error(`HTTP error! status: ${accountResponse.status}`);
+        }
+  
         const accountData = await accountResponse.json();
         setAccountData(accountData);
-
+  
+        // Fetch transactions data
         const transactionsResponse = await fetch(`${TRANSACTIONS_API_ENDPOINT}?token=${userToken}`);
+  
+        if (!transactionsResponse.ok) {
+          throw new Error(`HTTP error! status: ${transactionsResponse.status}`);
+        }
+  
         const transactionsData = await transactionsResponse.json();
         setTransactions(transactionsData);
+  
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [navigate]);
+  
+  const hasAccountData = accountData && accountData.accountNumber;
+  
 
   const getUserInfo = (token) => {
     try {
@@ -63,9 +86,6 @@ const DashDefault = () => {
   const handleButtonClick = () => {
     setShowForm(!showForm);
   };
-
-  const hasAccountData = accountData.length > 0 && accountData[0].title;
-
   return (
     <React.Fragment>
       {loading ? (
@@ -74,23 +94,23 @@ const DashDefault = () => {
         <Row>
           {hasAccountData ? (
             <>
-              {accountData.map((data, index) => (
-                <Col key={index} xl={6} xxl={6}>
+              
+                <Col xl={6} xxl={6}>
                   <Card>
                     <Card.Body>
-                      <h6 className="mb-4">{data.title}</h6>
+                      <h6 className="mb-4">Account Number {accountData.accountNumber}</h6>
                       <div className="row d-flex align-items-center">
                         <div className="col-9">
                           <h3 className="f-w-300 d-flex align-items-center m-b-0">
-                            <i className={`feather ${data.icon} f-30 m-r-5`} /> {data.amount}
+                            <i className={`feather  f-30 m-r-5`} />Balance RS {accountData.balance}
                           </h3>
                         </div>
                       </div>
                     </Card.Body>
                   </Card>
                 </Col>
-              ))}
-              <Col md={4} xl={8}>
+              
+              <Col xl={6} xxl={6}>
                 <Card className="Recent-Users widget-focus-lg">
                   <Card.Header>
                     <Card.Title as="h5">Recent Transactions</Card.Title>
