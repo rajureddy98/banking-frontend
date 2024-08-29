@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Row, Col, Alert, Button } from 'react-bootstrap';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -6,8 +6,18 @@ import { useNavigate } from 'react-router-dom';
 
 const LOGIN_API_ENDPOINT = import.meta.env.VITE_LOGIN_API_ENDPOINT + '/api/user-service/auth'; // Replace with your actual login API endpoint
 console.log('Login API Endpoint:', LOGIN_API_ENDPOINT);
+
 const JWTLogin = () => {
   const navigate = useNavigate(); // For navigation after successful login
+
+  useEffect(() => {
+    // Check if there is a JWT token in session storage
+    const token = sessionStorage.getItem('userToken');
+    if (token) {
+      // Redirect to the dashboard if token exists
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {

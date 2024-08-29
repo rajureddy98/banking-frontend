@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Row, Col } from 'react-bootstrap';
+import { Card, Row, Col, Toast, ToastContainer } from 'react-bootstrap';
 import { NavLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Breadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
@@ -10,18 +10,22 @@ const SignUp1 = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [showToast, setShowToast] = useState(false); // State to control toast visibility
   const navigate = useNavigate();
-  const signUp_URL= import.meta.env.VITE_LOGIN_API_ENDPOINT;
+  const signUp_URL = import.meta.env.VITE_LOGIN_API_ENDPOINT;
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await axios.post(signUp_URL +'/api/user-service/users', { name, email, password });
-      setMessage(response.data);
-      // Redirect to login or another page after successful registration
-      navigate('/auth/signin-1');
+      const response = await axios.post(signUp_URL + '/api/user-service/users', { name, email, password });
+      setMessage(response.data.message); // Assuming response.data.message contains the success message
+      setShowToast(true); // Show toast
+      setTimeout(() => {
+        navigate('/auth/signin-1'); // Redirect after showing the toast
+      }, 3000); // Adjust time as needed (e.g., 3 seconds)
     } catch (error) {
-      setError(error.response.data || 'An error occurred');
+      setError(error.response?.data || 'An error occurred');
     }
   };
 
@@ -44,7 +48,6 @@ const SignUp1 = () => {
                     <i className="feather icon-user-plus auth-icon" />
                   </div>
                   <h3 className="mb-4">Sign up</h3>
-                  {message && <div className="alert alert-success">{message}</div>}
                   {error && <div className="alert alert-danger">{error}</div>}
                   <form onSubmit={handleSubmit}>
                     <div className="input-group mb-3">
@@ -93,6 +96,18 @@ const SignUp1 = () => {
           </Card>
         </div>
       </div>
+
+      {/* Bootstrap Toast Container */}
+      <ToastContainer position="top-end" className="p-3">
+        <Toast
+          onClose={() => setShowToast(false)}
+          show={showToast}
+          delay={3000} // Toast will be shown for 3 seconds
+          autohide
+        >
+          <Toast.Body>{message}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </React.Fragment>
   );
 };

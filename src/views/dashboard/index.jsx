@@ -191,26 +191,64 @@ const DashDefault = () => {
 };
 
 const CustomerForm = () => {
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent default form submission behavior
+
+    // Prepare the data to be sent to the backend
+    const formData = {
+      phone,
+      address,
+    };
+
+    try {
+      // Make an API call to the backend
+      const response = await fetch(`${ACCOUNT_API_ENDPOINT}/create`, { // Replace with your backend API endpoint
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': sessionStorage.getItem('userToken'),
+        },
+        body: JSON.stringify(formData),
+      });
+
+      // Handle response from the backend
+      if (response.ok) {
+        const result = await response.json();
+        window.location.reload();
+      } else {
+        console.error('Error submitting form:', response.statusText);
+        // Optionally, show an error message here
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      // Optionally, show an error message here
+    }
+  };
+
   return (
-    <Form>
-      <Form.Group controlId="formName">
-        <Form.Label>Name</Form.Label>
-        <Form.Control type="text" placeholder="Enter your name" />
-      </Form.Group>
-
-      <Form.Group controlId="formDob">
-        <Form.Label>Date of birth</Form.Label>
-        <Form.Control type="date" />
-      </Form.Group>
-
+    <Form onSubmit={handleSubmit}>
       <Form.Group controlId="formPhone">
         <Form.Label>Phone</Form.Label>
-        <Form.Control type="text" placeholder="Enter your phone number" />
+        <Form.Control
+          type="text"
+          placeholder="Enter your phone number"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)} // Update phone state
+        />
       </Form.Group>
 
       <Form.Group controlId="formAddress">
         <Form.Label>Address</Form.Label>
-        <Form.Control as="textarea" rows={3} placeholder="Enter your address" />
+        <Form.Control
+          as="textarea"
+          rows={3}
+          placeholder="Enter your address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)} // Update address state
+        />
       </Form.Group>
 
       <Button variant="primary" type="submit">
