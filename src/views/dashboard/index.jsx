@@ -7,8 +7,8 @@ import avatar2 from '../../assets/images/user/avatar-2.jpg'; // Update paths as 
 import { data } from 'jquery';
 
 // Placeholder for API endpoints
-const ACCOUNT_API_ENDPOINT = 'http://localhost:3000/api/savings-accounts';
-const TRANSACTIONS_API_ENDPOINT = 'http://localhost:3000/api/transaction-service';
+const ACCOUNT_API_ENDPOINT = import.meta.env.VITE_LOGIN_API_ENDPOINT + '/api/savings-accounts';
+const TRANSACTIONS_API_ENDPOINT = import.meta.env.VITE_LOGIN_API_ENDPOINT +'/api/transaction-service';
 
 const DashDefault = () => {
   const [accountData, setAccountData] = useState([]);
